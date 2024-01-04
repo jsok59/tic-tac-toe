@@ -69,7 +69,7 @@ function Square() {
 
 function GameController(playerOne = "Player One", playerTwo = "Player Two") {
 	const board = Gameboard();
-    
+
 	const players = [
 		{
 			name: playerOne,
@@ -82,6 +82,8 @@ function GameController(playerOne = "Player One", playerTwo = "Player Two") {
 	];
 
 	let activePlayer = players[0];
+
+    
 
 	const switchTurn = () => {
 		activePlayer = activePlayer === players[0] ? players[1] : players[0];
@@ -117,7 +119,43 @@ function GameController(playerOne = "Player One", playerTwo = "Player Two") {
 
 	printRound();
 
-	return { playRound, getActivePlayer };
+	return { playRound, getActivePlayer};
 }
 
-const game = GameController();
+function ScreenController() {
+
+    const board = document.querySelector('.board');
+    const squares = document.querySelectorAll('.board > div')
+    const playerOneInput = document.querySelector('.player1')
+    const playerTwoInput = document.querySelector('.player2')
+    const controller = GameController(playerOneInput.textContent, playerTwoInput.textContent);
+
+
+    const updateScreen = () => {
+
+        squares.forEach((element) => {
+            element.textContent = '';
+        })
+        
+        let currentBoard = controller.board.getBoard();
+        let activePlayer = controller.getActivePlayer();
+
+        squares.forEach((element) =>{
+            
+            let row = element.getAttribute('row');
+            let col = element.getAttribute('col');
+            if (currentBoard[row][col] === 1) {
+                element.firstElementChild.textContent = 'O';
+            } else if(currentBoard[row][col] === 10) {
+                element.firstElementChild.textContent = 'X';
+            } else {
+                element.firstElementChild.textContent = '';
+            }
+        })
+
+
+
+    } 
+}
+
+
