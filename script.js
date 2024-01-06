@@ -119,17 +119,16 @@ function GameController(playerOne = "Player One", playerTwo = "Player Two") {
 
 	printRound();
 
-	return { playRound, getActivePlayer};
+	return { playRound, getActivePlayer, board};
 }
 
 function ScreenController() {
 
-    const board = document.querySelector('.board');
     const squares = document.querySelectorAll('.board > div')
     const playerOneInput = document.querySelector('.player1')
     const playerTwoInput = document.querySelector('.player2')
-    const controller = GameController(playerOneInput.textContent, playerTwoInput.textContent);
-
+    const controller = GameController(playerOneInput.value, playerTwoInput.value);
+    const playerTurn = document.querySelector('.turn');
 
     const updateScreen = () => {
 
@@ -140,22 +139,51 @@ function ScreenController() {
         let currentBoard = controller.board.getBoard();
         let activePlayer = controller.getActivePlayer();
 
+        playerTurn.textContent = `${activePlayer.name}'s turn`;
+
         squares.forEach((element) =>{
-            
             let row = element.getAttribute('row');
             let col = element.getAttribute('col');
-            if (currentBoard[row][col] === 1) {
-                element.firstElementChild.textContent = 'O';
-            } else if(currentBoard[row][col] === 10) {
-                element.firstElementChild.textContent = 'X';
+            if (currentBoard[row][col].getValue() === 1) {
+                element.textContent = 'O';
+            } else if(currentBoard[row][col].getValue() === 10) {
+                element.textContent = 'X';
             } else {
-                element.firstElementChild.textContent = '';
+                element.textContent = '';
             }
         })
 
-
-
     } 
+
+    const clickHandlerBoard = (row, col) => {
+        
+        
+        controller.playRound(row,col);
+        updateScreen();
+        
+        
+        
+    }
+
+    
+
+    return {updateScreen, clickHandlerBoard, squares};
+
 }
+
+function start() {
+    let startObj = ScreenController();
+
+    startObj.squares.forEach((element) => {
+        element.addEventListener('click', ()=>{
+            startObj.clickHandlerBoard(element.getAttribute('row'), element.getAttribute('col'));
+        })
+    })
+
+}
+
+
+
+
 
 
