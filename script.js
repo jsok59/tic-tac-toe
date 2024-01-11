@@ -48,9 +48,11 @@ function Gameboard() {
 		/*Tie Check*/
 		let numberOfOpenSpots = 0;
 		for (let i = 0; i < 3; i++) {
-			numberOfOpenSpots = board[i].reduce((total, element) => {
+			numberOfOpenSpots += board[i].reduce((total, element) => {
+                
 				return element.getValue() === 0 ? total + 1 : total;
 			}, 0);
+            
 		}
 		if (numberOfOpenSpots === 0) {
 			return 3;
