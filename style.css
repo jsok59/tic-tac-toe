@@ -1,0 +1,44 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    padding-top: 20px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.players {
+    display: flex;
+    gap: 40px;
+    font-size: 1.5rem;
+    justify-content: center;
+}
+
+.players input {
+    height: 1.5rem;
+}
+
+
+
+.board {
+    height: 50vh;
+    width: 50vh;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+
+.board div {
+    border: 2px solid black;
+}
+
+div button {
+    height: 100%;
+    width: 100%;
+}
+

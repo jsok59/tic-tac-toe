@@ -7,7 +7,24 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
+    <h1 class="title">Tic Tac Toe</h1>
+    <div class="players">
+        <p>Player One: <input class='player1' type="text"></p>
+        <p>Player Two: <input class='player2' type="text"></p>
+    </div>
+    <button class="start" onclick="screenController.start()">Start</button>
+    <p class='turn'></p>
+    <div class="board">
+        <div row="0" col="0"><button></button></div>
+        <div row="0" col="1"><button></button></div>
+        <div row="0" col="2"><button></button></div>
+        <div row="1" col="0"><button></button></div>
+        <div row="1" col="1"><button></button></div>
+        <div row="1" col="2"><button></button></div>
+        <div row="2" col="0"><button></button></div>
+        <div row="2" col="1"><button></button></div>
+        <div row="2" col="2"><button></button></div>
+    </div>
 
     <script src="script.js"></script>
 </body>

@@ -25,7 +25,7 @@ function Gameboard() {
 		/* Horizonal Check and Vertical Check */
 		for (let i = 0; i < 3; i++) {
 			let sumH = board[i].reduce((total, element) => {
-				return total + element;
+				return total + element.getValue();
 			}, 0);
 			if (sumH === 3) return 1;
 			else if (sumH === 30) return 2;
@@ -45,6 +45,17 @@ function Gameboard() {
 		if (sumDiagBotTop === 3) return 1;
 		else if (sumDiagBotTop === 30) return 2;
 
+		/*Tie Check*/
+		let numberOfOpenSpots = 0;
+		for (let i = 0; i < 3; i++) {
+			numberOfOpenSpots = board[i].reduce((total, element) => {
+				return element.getValue() === 0 ? total + 1 : total;
+			}, 0);
+		}
+		if (numberOfOpenSpots === 0) {
+			return 3;
+		}
+
 		return 0;
 	};
 
@@ -60,10 +71,9 @@ function Gameboard() {
 				board[i].push(Square());
 			}
 		}
-    }
+	};
 	return { getBoard, markSquare, printBoard, checkWin, reset };
 }
-
 
 function Square() {
 	let value = 0;
@@ -76,19 +86,31 @@ function Square() {
 	return { addSquare, getValue };
 }
 
-function GameController(playerOne = "Player One", playerTwo = "Player Two") {
+function GameController() {
 	const board = Gameboard();
 
 	const players = [
 		{
-			name: playerOne,
+			name: "Player One",
 			shape: 1,
 		},
 		{
-			name: playerTwo,
+			name: "Player Two",
 			shape: 10,
 		},
 	];
+
+	const setName1 = (name) => {
+		if (name != "") {
+			players[0].name = name;
+		}
+	};
+
+	const setName2 = (name) => {
+		if (name != "") {
+			players[1].name = name;
+		}
+	};
 
 	let activePlayer = players[0];
 
@@ -107,14 +129,22 @@ function GameController(playerOne = "Player One", playerTwo = "Player Two") {
 		console.log(`Marking ${getActivePlayer().name}'s shape into column ${col} and row ${row}.`);
 		if (!board.markSquare(row, col, getActivePlayer().shape)) {
 			console.log("The square is already marked. Please choose a different square.");
+			return null;
 		} else {
 			board.markSquare(row, col, getActivePlayer().shape);
-			if (board.checkWin() === 1) {
+			let result = board.checkWin();
+			if (result === 1) {
 				printRound();
 				console.log("Player 1 wins");
-			} else if (board.checkWin() === 2) {
+				return 1;
+			} else if (result === 2) {
 				printRound();
 				console.log("Player 2 wins");
+				return 2;
+			} else if (result === 3) {
+				printRound();
+				console.log("It's a tie");
+				return 3;
 			} else {
 				switchTurn();
 				printRound();
@@ -122,16 +152,14 @@ function GameController(playerOne = "Player One", playerTwo = "Player Two") {
 		}
 	};
 
-	
-
-	return { playRound, getActivePlayer, board };
+	return { setName1, setName2, playRound, getActivePlayer, board };
 }
 
-function ScreenController() {
+const screenController = (function () {
 	const squares = document.querySelectorAll(".board > div");
 	const playerOneInput = document.querySelector(".player1");
 	const playerTwoInput = document.querySelector(".player2");
-	const controller = GameController(playerOneInput.value, playerTwoInput.value);
+	const controller = GameController();
 	const playerTurn = document.querySelector(".turn");
 
 	const updateScreen = () => {
@@ -147,7 +175,7 @@ function ScreenController() {
 		squares.forEach((element) => {
 			let row = element.getAttribute("row");
 			let col = element.getAttribute("col");
-            
+
 			if (currentBoard[row][col].getValue() === 1) {
 				element.firstElementChild.textContent = "O";
 			} else if (currentBoard[row][col].getValue() === 10) {
@@ -158,35 +186,30 @@ function ScreenController() {
 		});
 	};
 
-	const clickHandlerBoard = (row, col) => {
-		controller.playRound(row, col);
+	const clickHandlerBoard = (event) => {
+		controller.playRound(event.target.parentElement.getAttribute("row"), event.target.parentElement.getAttribute("col"));
 		updateScreen();
 	};
 
 	const reset = () => {
-		playerOneInput.value = "";
-		playerTwoInput.value = "";
 		controller.board.reset();
+        updateScreen();
 		squares.forEach((element) => {
-
 			element.firstElementChild.textContent = "";
 		});
 	};
 
-	return { updateScreen, clickHandlerBoard, squares, reset };
-}
+	const start = () => {
+		reset();
+		controller.setName1(playerOneInput.value);
+		controller.setName2(playerTwoInput.value);
+		squares.forEach((element) => {
+			element.removeEventListener("click", clickHandlerBoard);
+		});
+		squares.forEach((element) => {
+			element.addEventListener("click", clickHandlerBoard);
+		});
+	};
 
-function start() {
-	let startObj = ScreenController();
-	startObj.reset();
-    startObj.squares.forEach((element) => {
-		element.removeEventListener("click", () => {
-			startObj.clickHandlerBoard(element.getAttribute("row"), element.getAttribute("col"));
-		});
-	});
-	startObj.squares.forEach((element) => {
-		element.addEventListener("click", () => {
-			startObj.clickHandlerBoard(element.getAttribute("row"), element.getAttribute("col"));
-		});
-	});
-}
+	return { updateScreen, clickHandlerBoard, squares, reset, start };
+})();
