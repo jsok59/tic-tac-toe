@@ -114,6 +114,14 @@ function GameController() {
 		}
 	};
 
+    const getName1 = () => {
+		return players[0].name
+	};
+
+	const getName2 = (name) => {
+		return players[1].name
+	};
+
 	let activePlayer = players[0];
 
 	const switchTurn = () => {
@@ -154,7 +162,11 @@ function GameController() {
 		}
 	};
 
-	return { setName1, setName2, playRound, getActivePlayer, board };
+    const reset = () => {
+        activePlayer = players[0];
+    }
+
+	return { setName1, setName2, getName1, getName2, playRound, getActivePlayer, board, reset };
 }
 
 const screenController = (function () {
@@ -164,15 +176,31 @@ const screenController = (function () {
 	const controller = GameController();
 	const playerTurn = document.querySelector(".turn");
 
-	const updateScreen = () => {
-		squares.forEach((element) => {
-			element.firstElementChild.textContent = "";
-		});
+
+	const updateScreen = (result) => {
+		console.log(result);
 
 		let currentBoard = controller.board.getBoard();
 		let activePlayer = controller.getActivePlayer();
-
-		playerTurn.textContent = `${activePlayer.name}'s turn`;
+        if (result == 1 || result == 2){
+            playerTurn.textContent = `${activePlayer.name} Wins!`;
+            squares.forEach((element) => {
+                element.removeEventListener("click", clickHandlerBoard);
+            });
+        } else if (result == 3) {
+            playerTurn.textContent = `It's a tie!`;
+            playerTurn.style.color = 'purple';
+            squares.forEach((element) => {
+                element.removeEventListener("click", clickHandlerBoard);
+            });
+        } else {
+            if (activePlayer.name == controller.getName1()) {
+                playerTurn.style.color = 'blue';
+            } else {
+                playerTurn.style.color = 'red'
+            }
+            playerTurn.textContent = `${activePlayer.name}'s turn`;
+        }
 
 		squares.forEach((element) => {
 			let row = element.getAttribute("row");
@@ -180,8 +208,10 @@ const screenController = (function () {
 
 			if (currentBoard[row][col].getValue() === 1) {
 				element.firstElementChild.textContent = "O";
+                element.firstElementChild.style.color = 'blue';
 			} else if (currentBoard[row][col].getValue() === 10) {
 				element.firstElementChild.textContent = "X";
+                element.firstElementChild.style.color = 'red';
 			} else {
 				element.firstElementChild.textContent = "";
 			}
@@ -189,22 +219,20 @@ const screenController = (function () {
 	};
 
 	const clickHandlerBoard = (event) => {
-		controller.playRound(event.target.parentElement.getAttribute("row"), event.target.parentElement.getAttribute("col"));
-		updateScreen();
+		let result = controller.playRound(event.target.parentElement.getAttribute("row"), event.target.parentElement.getAttribute("col"));
+		updateScreen(result);
 	};
 
-	const reset = () => {
-		controller.board.reset();
-        updateScreen();
-		squares.forEach((element) => {
-			element.firstElementChild.textContent = "";
-		});
-	};
+	
 
 	const start = () => {
-		reset();
+		controller.board.reset();
+        controller.reset();
 		controller.setName1(playerOneInput.value);
 		controller.setName2(playerTwoInput.value);
+
+        updateScreen();
+
 		squares.forEach((element) => {
 			element.removeEventListener("click", clickHandlerBoard);
 		});
@@ -213,5 +241,5 @@ const screenController = (function () {
 		});
 	};
 
-	return { updateScreen, clickHandlerBoard, squares, reset, start };
+	return { updateScreen, clickHandlerBoard, start };
 })();
