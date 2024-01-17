@@ -6,15 +6,15 @@ function Gameboard() {
 	for (let i = 0; i < rows; i++) {
 		board[i] = [];
 		for (let j = 0; j < cols; j++) {
-			board[i].push(Square());
+			board[i].push(new Square(0));
 		}
 	}
 
 	const getBoard = () => board;
 
 	const markSquare = (row, col, player) => {
-		if (board[row][col].getValue() == 0) {
-			board[row][col].addSquare(player);
+		if (board[row][col].value == 0) {
+			board[row][col].value = player;
 			return true;
 		} else {
 			return false;
@@ -25,23 +25,23 @@ function Gameboard() {
 		/* Horizonal Check and Vertical Check */
 		for (let i = 0; i < 3; i++) {
 			let sumH = board[i].reduce((total, element) => {
-				return total + element.getValue();
+				return total + element.value;
 			}, 0);
 			if (sumH === 3) return 1;
 			else if (sumH === 30) return 2;
 
 			let sumV = 0;
 			for (let j = 0; j < 3; j++) {
-				sumV += board[j][i].getValue();
+				sumV += board[j][i].value;
 			}
 			if (sumV === 3) return 1;
 			else if (sumV === 30) return 2;
 		}
 		/* Diagonals Check */
-		let sumDiagTopBot = board[0][0].getValue() + board[1][1].getValue() + board[2][2].getValue();
+		let sumDiagTopBot = board[0][0].value + board[1][1].value + board[2][2].value;
 		if (sumDiagTopBot === 3) return 1;
 		else if (sumDiagTopBot === 30) return 2;
-		let sumDiagBotTop = board[2][0].getValue() + board[1][1].getValue() + board[0][2].getValue();
+		let sumDiagBotTop = board[2][0].value + board[1][1].value + board[0][2].value;
 		if (sumDiagBotTop === 3) return 1;
 		else if (sumDiagBotTop === 30) return 2;
 
@@ -50,7 +50,7 @@ function Gameboard() {
 		for (let i = 0; i < 3; i++) {
 			numberOfOpenSpots += board[i].reduce((total, element) => {
                 
-				return element.getValue() === 0 ? total + 1 : total;
+				return element.value === 0 ? total + 1 : total;
 			}, 0);
             
 		}
@@ -62,7 +62,7 @@ function Gameboard() {
 	};
 
 	const printBoard = () => {
-		const boardWithSquareValues = board.map((row) => row.map((square) => square.getValue()));
+		const boardWithSquareValues = board.map((row) => row.map((square) => square.value));
 		console.log(boardWithSquareValues);
 	};
 
@@ -70,22 +70,26 @@ function Gameboard() {
 		for (let i = 0; i < rows; i++) {
 			board[i] = [];
 			for (let j = 0; j < cols; j++) {
-				board[i].push(Square());
+				board[i].push(new Square(0));
 			}
 		}
 	};
 	return { getBoard, markSquare, printBoard, checkWin, reset };
 }
 
-function Square() {
-	let value = 0;
+class Square {
 
-	const addSquare = (player) => {
-		value = player;
-	};
+	constructor(value) {
+		this._value= value;
+	}
 
-	const getValue = () => value;
-	return { addSquare, getValue };
+	set value(player) {
+		this._value = player;
+	}
+
+	get value() {
+		return this._value;
+	}
 }
 
 function GameController() {
@@ -178,7 +182,7 @@ const screenController = (function () {
 
 
 	const updateScreen = (result) => {
-		console.log(result);
+		
 
 		let currentBoard = controller.board.getBoard();
 		let activePlayer = controller.getActivePlayer();
@@ -206,10 +210,10 @@ const screenController = (function () {
 			let row = element.getAttribute("row");
 			let col = element.getAttribute("col");
 
-			if (currentBoard[row][col].getValue() === 1) {
+			if (currentBoard[row][col].value === 1) {
 				element.firstElementChild.textContent = "O";
                 element.firstElementChild.style.color = 'blue';
-			} else if (currentBoard[row][col].getValue() === 10) {
+			} else if (currentBoard[row][col].value === 10) {
 				element.firstElementChild.textContent = "X";
                 element.firstElementChild.style.color = 'red';
 			} else {
@@ -243,3 +247,5 @@ const screenController = (function () {
 
 	return { updateScreen, clickHandlerBoard, start };
 })();
+
+// test
