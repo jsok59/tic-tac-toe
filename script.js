@@ -1,30 +1,37 @@
-function Gameboard() {
-	const rows = 3;
-	const cols = 3;
-	const board = [];
+class Gameboard {
+	// rows = 3;
+	// cols = 3;
+	// board = [];
 
-	for (let i = 0; i < rows; i++) {
-		board[i] = [];
-		for (let j = 0; j < cols; j++) {
-			board[i].push(new Square(0));
+	constructor() {
+		this.rows = 3;
+		this.cols = 3;
+		this.board = [];
+		for (let i = 0; i < this.rows; i++) {
+			this.board[i] = [];
+			for (let j = 0; j < this.cols; j++) {
+				this.board[i].push(new Square(0));
+			}
 		}
 	}
 
-	const getBoard = () => board;
+	getBoard() {
+		return this.board;
+	}
 
-	const markSquare = (row, col, player) => {
-		if (board[row][col].value == 0) {
-			board[row][col].value = player;
+	markSquare(row, col, player) {
+		if (this.board[row][col].value == 0) {
+			this.board[row][col].value = player;
 			return true;
 		} else {
 			return false;
 		}
-	};
+	}
 
-	const checkWin = () => {
+	checkWin() {
 		/* Horizonal Check and Vertical Check */
 		for (let i = 0; i < 3; i++) {
-			let sumH = board[i].reduce((total, element) => {
+			let sumH = this.board[i].reduce((total, element) => {
 				return total + element.value;
 			}, 0);
 			if (sumH === 3) return 1;
@@ -32,55 +39,48 @@ function Gameboard() {
 
 			let sumV = 0;
 			for (let j = 0; j < 3; j++) {
-				sumV += board[j][i].value;
+				sumV += this.board[j][i].value;
 			}
 			if (sumV === 3) return 1;
 			else if (sumV === 30) return 2;
 		}
 		/* Diagonals Check */
-		let sumDiagTopBot = board[0][0].value + board[1][1].value + board[2][2].value;
+		let sumDiagTopBot = this.board[0][0].value + this.board[1][1].value + this.board[2][2].value;
 		if (sumDiagTopBot === 3) return 1;
 		else if (sumDiagTopBot === 30) return 2;
-		let sumDiagBotTop = board[2][0].value + board[1][1].value + board[0][2].value;
+		let sumDiagBotTop = this.board[2][0].value + this.board[1][1].value + this.board[0][2].value;
 		if (sumDiagBotTop === 3) return 1;
 		else if (sumDiagBotTop === 30) return 2;
 
 		/*Tie Check*/
 		let numberOfOpenSpots = 0;
 		for (let i = 0; i < 3; i++) {
-			numberOfOpenSpots += board[i].reduce((total, element) => {
-                
+			numberOfOpenSpots += this.board[i].reduce((total, element) => {
 				return element.value === 0 ? total + 1 : total;
 			}, 0);
-            
 		}
 		if (numberOfOpenSpots === 0) {
 			return 3;
 		}
 
 		return 0;
-	};
+	}
 
-	const printBoard = () => {
-		const boardWithSquareValues = board.map((row) => row.map((square) => square.value));
-		console.log(boardWithSquareValues);
-	};
 
-	const reset = () => {
-		for (let i = 0; i < rows; i++) {
-			board[i] = [];
-			for (let j = 0; j < cols; j++) {
-				board[i].push(new Square(0));
+
+	reset() {
+		for (let i = 0; i < this.rows; i++) {
+			this.board[i] = [];
+			for (let j = 0; j < this.cols; j++) {
+				this.board[i].push(new Square(0));
 			}
 		}
-	};
-	return { getBoard, markSquare, printBoard, checkWin, reset };
+	}
 }
 
 class Square {
-
 	constructor(value) {
-		this._value= value;
+		this._value = value;
 	}
 
 	set value(player) {
@@ -92,10 +92,10 @@ class Square {
 	}
 }
 
-function GameController() {
-	const board = Gameboard();
+class GameController {
+	board = new Gameboard();
 
-	const players = [
+	players = [
 		{
 			name: "Player One",
 			shape: 1,
@@ -106,105 +106,95 @@ function GameController() {
 		},
 	];
 
-	const setName1 = (name) => {
+	activePlayer = this.players[0];
+
+	setName1(name) {
 		if (name != "") {
-			players[0].name = name;
+			this.players[0].name = name;
 		}
-	};
+	}
 
-	const setName2 = (name) => {
+	setName2(name) {
 		if (name != "") {
-			players[1].name = name;
+			this.players[1].name = name;
 		}
-	};
+	}
 
-    const getName1 = () => {
-		return players[0].name
-	};
+	getName1() {
+		return this.players[0].name;
+	}
 
-	const getName2 = (name) => {
-		return players[1].name
-	};
+	getName2(name) {
+		return this.players[1].name;
+	}
 
-	let activePlayer = players[0];
+	switchTurn() {
+		this.activePlayer = this.activePlayer === this.players[0] ? this.players[1] : this.players[0];
+	}
 
-	const switchTurn = () => {
-		activePlayer = activePlayer === players[0] ? players[1] : players[0];
-	};
+	getActivePlayer() {
+		return this.activePlayer;
+	}
 
-	const getActivePlayer = () => activePlayer;
+	
 
-	const printRound = () => {
-		board.printBoard();
-		console.log(`${getActivePlayer().name}'s turn.`);
-	};
+	playRound(row, col) {
 
-	const playRound = (row, col) => {
-		console.log(`Marking ${getActivePlayer().name}'s shape into column ${col} and row ${row}.`);
-		if (!board.markSquare(row, col, getActivePlayer().shape)) {
-			console.log("The square is already marked. Please choose a different square.");
+		if (!this.board.markSquare(row, col, this.getActivePlayer().shape)) {
+
 			return null;
 		} else {
-			board.markSquare(row, col, getActivePlayer().shape);
-			let result = board.checkWin();
+			this.board.markSquare(row, col, this.getActivePlayer().shape);
+			let result = this.board.checkWin();
 			if (result === 1) {
-				printRound();
-				console.log("Player 1 wins");
+				
 				return 1;
 			} else if (result === 2) {
-				printRound();
-				console.log("Player 2 wins");
+				
 				return 2;
 			} else if (result === 3) {
-				printRound();
-				console.log("It's a tie");
+				
 				return 3;
 			} else {
-				switchTurn();
-				printRound();
+				this.switchTurn();
 			}
 		}
-	};
+	}
 
-    const reset = () => {
-        activePlayer = players[0];
-    }
-
-	return { setName1, setName2, getName1, getName2, playRound, getActivePlayer, board, reset };
+	reset() {
+		this.activePlayer = this.players[0];
+	}
 }
 
 const screenController = (function () {
 	const squares = document.querySelectorAll(".board > div");
 	const playerOneInput = document.querySelector(".player1");
 	const playerTwoInput = document.querySelector(".player2");
-	const controller = GameController();
+	const controller = new GameController();
 	const playerTurn = document.querySelector(".turn");
 
-
 	const updateScreen = (result) => {
-		
-
 		let currentBoard = controller.board.getBoard();
 		let activePlayer = controller.getActivePlayer();
-        if (result == 1 || result == 2){
-            playerTurn.textContent = `${activePlayer.name} Wins!`;
-            squares.forEach((element) => {
-                element.removeEventListener("click", clickHandlerBoard);
-            });
-        } else if (result == 3) {
-            playerTurn.textContent = `It's a tie!`;
-            playerTurn.style.color = 'purple';
-            squares.forEach((element) => {
-                element.removeEventListener("click", clickHandlerBoard);
-            });
-        } else {
-            if (activePlayer.name == controller.getName1()) {
-                playerTurn.style.color = 'blue';
-            } else {
-                playerTurn.style.color = 'red'
-            }
-            playerTurn.textContent = `${activePlayer.name}'s turn`;
-        }
+		if (result == 1 || result == 2) {
+			playerTurn.textContent = `${activePlayer.name} Wins!`;
+			squares.forEach((element) => {
+				element.removeEventListener("click", clickHandlerBoard);
+			});
+		} else if (result == 3) {
+			playerTurn.textContent = `It's a tie!`;
+			playerTurn.style.color = "purple";
+			squares.forEach((element) => {
+				element.removeEventListener("click", clickHandlerBoard);
+			});
+		} else {
+			if (activePlayer.name == controller.getName1()) {
+				playerTurn.style.color = "blue";
+			} else {
+				playerTurn.style.color = "red";
+			}
+			playerTurn.textContent = `${activePlayer.name}'s turn`;
+		}
 
 		squares.forEach((element) => {
 			let row = element.getAttribute("row");
@@ -212,10 +202,10 @@ const screenController = (function () {
 
 			if (currentBoard[row][col].value === 1) {
 				element.firstElementChild.textContent = "O";
-                element.firstElementChild.style.color = 'blue';
+				element.firstElementChild.style.color = "blue";
 			} else if (currentBoard[row][col].value === 10) {
 				element.firstElementChild.textContent = "X";
-                element.firstElementChild.style.color = 'red';
+				element.firstElementChild.style.color = "red";
 			} else {
 				element.firstElementChild.textContent = "";
 			}
@@ -227,15 +217,13 @@ const screenController = (function () {
 		updateScreen(result);
 	};
 
-	
-
 	const start = () => {
 		controller.board.reset();
-        controller.reset();
+		controller.reset();
 		controller.setName1(playerOneInput.value);
 		controller.setName2(playerTwoInput.value);
 
-        updateScreen();
+		updateScreen();
 
 		squares.forEach((element) => {
 			element.removeEventListener("click", clickHandlerBoard);
